@@ -16,4 +16,16 @@ import java.util.List;
 public class RatedReviewsList {
     private List<Review> reviews;
     private MenuRatingInfo menuRating;
+    private ErrorResponse errorResponse;
+
+    public static RatedReviewsList fallbackResponse(Long menuId) {
+        return RatedReviewsList.builder()
+                .menuRating(MenuRatingInfo.defaultRating(menuId))
+                .reviews(List.of())
+                .errorResponse(ErrorResponse.builder()
+                        .message("Не удалось получить данные об отзывах и рейтинге блюда.")
+                        .reason("Микросервис Review Service недоступен.")
+                        .build())
+                .build();
+    }
 }
