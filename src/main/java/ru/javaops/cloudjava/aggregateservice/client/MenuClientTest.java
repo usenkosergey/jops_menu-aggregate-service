@@ -14,7 +14,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static ru.javaops.cloudjava.aggregateservice.testutil.TestConstants.MENU_BACKEND;
+import static ru.javaops.cloudjava.aggregateservice.testutil.TestConstants.MENU_ONE_ID;
 import static ru.javaops.cloudjava.aggregateservice.testutil.TestDateProvider.drinksMenuList;
+import static ru.javaops.cloudjava.aggregateservice.testutil.TestDateProvider.menuOneItem;
 
 class MenuClientTest extends BaseTest {
 
@@ -99,5 +101,86 @@ class MenuClientTest extends BaseTest {
                     .verify();
         }
         wiremock.verify(6, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+
+    @Test
+    void getMenuItem_returnsCorrectResponse() {
+        stubForCorrectMenuItemResponse();
+
+        var mono = client.getMenuItem(MENU_ONE_ID);
+        StepVerifier.create(mono)
+                .expectNextMatches(response ->
+                        response.equals(menuOneItem()))
+                .verifyComplete();
+        wiremock.verify(1, getRequestedFor(urlEqualTo(getMenuItemUrl())));
+    }
+
+    @Test
+    void getMenuItem_returnsCorrectResponseAfterRetriesSucceed() {
+        stubForMenuItemWithRetriesAndSuccess();
+
+        var mono = client.getMenuItem(MENU_ONE_ID);
+        StepVerifier.create(mono)
+                .expectNextMatches(response ->
+                        response.equals(menuOneItem()))
+                .verifyComplete();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuItemUrl())));
+
+    }
+
+    @Test
+    void getMenuItem_returnsExceptionOn500Error() {
+        stubForMenuItem500Error();
+
+        var mono = client.getMenuItem(MENU_ONE_ID);
+        StepVerifier.create(mono)
+                .expectError(MenuAggregateException.class)
+                .verify();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuItemUrl())));
+    }
+
+    @Test
+    void getMenuItem_returnsExceptionOnTimeout() {
+        stubForMenuItemTimeout();
+
+        var mono = client.getMenuItem(MENU_ONE_ID);
+        StepVerifier.create(mono)
+                .expectError(MenuAggregateException.class)
+                .verify();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuItemUrl())));
+    }
+
+    @Test
+    void getMenuItem_returnsErrorAfterRetriesFailWithDifferentReasons() {
+        stubForMenuItemWithRetriesAndFailure();
+
+        var mono = client.getMenuItem(MENU_ONE_ID);
+        StepVerifier.create(mono)
+                .expectError(MenuAggregateException.class)
+                .verify();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuItemUrl())));
+    }
+
+    @Test
+    void getMenuItem_opensCircuitBreakerAfterAllAttempts() {
+        CircuitBreaker menuCircuitBreaker = circuitBreakerRegistry.circuitBreaker(MENU_BACKEND);
+        // circuitbreaker minimum-number-of-calls = 6 in tests
+        // retry max-attempts = 3
+        stubForMenuItemTimeout();
+        for (int i = 1; i <= 4; i++) {
+            var mono = client.getMenuItem(MENU_ONE_ID);
+            Class<? extends Throwable> expectError;
+            if (i < 3) {
+                expectError = MenuAggregateException.class;
+                assertThat(menuCircuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+            } else {
+                expectError = CallNotPermittedException.class;
+                assertThat(menuCircuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
+            }
+            StepVerifier.create(mono)
+                    .expectError(expectError)
+                    .verify();
+        }
+        wiremock.verify(6, getRequestedFor(urlEqualTo(getMenuItemUrl())));
     }
 }
