@@ -1,3 +1,23 @@
+server:
+  port: 9094
+  shutdown: graceful
+  netty:
+    connection-timeout: 3s
+    idle-timeout: 20s
+
 spring:
   application:
     name: menu-aggregate-service
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+external:
+  menu-service-url: "http://localhost:9091"
+  review-service-url: "http://localhost:9093"
+  menu-item-path: "/v1/menu-items"
+  menu-reviews-path: "/v1/reviews/menu-item"
+  menu-ratings-path: "/v1/reviews/ratings"
+  default-timeout: 2s
+  retry-backoff: 100ms
+  retry-count: 5
+  retry-jitter: 0.75
