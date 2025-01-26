@@ -1,0 +1,690 @@
+{
+	"info": {
+		"_postman_id": "b91f70e3-8d76-4aba-84e2-5d934b13d582",
+		"name": "cloud-java",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14134951"
+	},
+	"item": [
+		{
+			"name": "create menu one",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"One\",\n    \"description\": \"Description\",\n    \"price\": 10.10,\n    \"category\": \"drinks\",\n    \"timeToCook\": 1000,\n    \"weight\": 10.20,\n    \"imageUrl\": \"http://images.com/item.png\",\n    \"ingredientCollection\": {\n        \"ingredients\": [\n            {\n                \"name\": \"ingredient one\",\n                \"calories\": 10\n            },\n            {\n                \"name\": \"ingredient two\",\n                \"calories\": 20\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9091/v1/menu-items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"v1",
+						"menu-items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get menu for Category DRINKS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9091/v1/menu-items?category=DRINKS",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"v1",
+						"menu-items"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "DRINKS"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get menu not-found",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9091/v1/menu-items/1000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"v1",
+						"menu-items",
+						"1000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create menu two",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Two\",\n    \"description\": \"Nice Item Two\",\n    \"price\": 10.10,\n    \"category\": \"drinks\",\n    \"timeToCook\": 1000,\n    \"weight\": 20.20,\n    \"imageUrl\": \"http://images.com/two.png\",\n    \"ingredientCollection\": {\n        \"ingredients\": [\n            {\n                \"name\": \"ingredient one\",\n                \"calories\": 10\n            },\n            {\n                \"name\": \"ingredient two\",\n                \"calories\": 20\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9091/v1/menu-items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"v1",
+						"menu-items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create menu three",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Three\",\n    \"description\": \"Nice Item Three\",\n    \"price\": 10.10,\n    \"category\": \"drinks\",\n    \"timeToCook\": 1000,\n    \"weight\": 30.20,\n    \"imageUrl\": \"http://images.com/three.png\",\n    \"ingredientCollection\": {\n        \"ingredients\": [\n            {\n                \"name\": \"ingredient one\",\n                \"calories\": 10\n            },\n            {\n                \"name\": \"ingredient two\",\n                \"calories\": 20\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9091/v1/menu-items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"v1",
+						"menu-items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Submit order for One Two Three",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nameToQuantity\": {\n        \"One\": 10,\n        \"Two\": 20,\n        \"Three\": 30\n    },\n    \"address\": {\n        \"city\": \"Moscow\",\n        \"street\": \"Street\",\n        \"house\": 1,\n        \"apartment\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9092/v1/menu-orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9092",
+					"path": [
+						"v1",
+						"menu-orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By Alex Menu 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \"Comment\",\n    \"rate\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By Alex Menu 2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 2,\n    \"comment\": \"Comment\",\n    \"rate\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By Alex Menu 3",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 3,\n    \"comment\": \"Comment\",\n    \"rate\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By John Menu 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "John",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \"Comment\",\n    \"rate\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By Michael Menu 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Michael",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \"Comment\",\n    \"rate\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By Max Menu 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Max",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \"Comment\",\n    \"rate\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review By Phill Menu 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Phill",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \"Comment\",\n    \"rate\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review Fail Validation",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \" \",\n    \"rate\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review Fail Repeatable",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": 1,\n    \"comment\": \"Comment\",\n    \"rate\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Review 1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get reviews of menu 1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews/menu-item/1?from-0&size=10&sortBy=date_asc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews",
+						"menu-item",
+						"1"
+					],
+					"query": [
+						{
+							"key": "from-0",
+							"value": null
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "sortBy",
+							"value": "date_asc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get reviews of Alex",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Name",
+						"value": "Alex",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews/my?from=0&size=10&sortBy=date_asc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews",
+						"my"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "sortBy",
+							"value": "date_asc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get ratings of menus 1, 2, 3, 4, 5",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuIds\": [1,2,3,4,5]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9093/v1/reviews/ratings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9093",
+					"path": [
+						"v1",
+						"reviews",
+						"ratings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Menu Aggregate",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9094/v1/menu-aggregate/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9094",
+					"path": [
+						"v1",
+						"menu-aggregate",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Menu Aggregate Not Found",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9094/v1/menu-aggregate/1000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9094",
+					"path": [
+						"v1",
+						"menu-aggregate",
+						"1000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Menu Aggregate List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9094/v1/menu-aggregate?category=DRINKS",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9094",
+					"path": [
+						"v1",
+						"menu-aggregate"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "DRINKS"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
