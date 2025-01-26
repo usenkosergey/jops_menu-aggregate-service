@@ -21,3 +21,47 @@ external:
   retry-backoff: 100ms
   retry-count: 5
   retry-jitter: 0.75
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: time_based
+        sliding-window-size: 30 # секунды
+        permitted-number-of-calls-in-half-open-state: 5
+        failure-rate-threshold: 60 # проценты
+        wait-duration-in-open-state:
+          seconds: 10
+        slow-call-duration-threshold:
+          seconds: 4s
+        # количество вызовов, по которым принимается решение открыть / закрыть circuitBreaker
+        # так как мы используем тип окна TIME_BASED, это количество вызовов должно произойти за
+        # указанное в параметре sliding-window-size время.
+        minimum-number-of-calls: 15
+    instances:
+      # Определяем CircuitBreaker, который будет использоваться в MenuClient
+      menuBackend:
+        base-config: default
+      # Определяем CircuitBreaker, который будет использоваться в ReviewsClient
+      reviewBackend:
+        base-config: default
+
+  retry:
+    configs:
+      default:
+        max-attempts: ${external.retry-count} # Максимальное количество попыток выполнения операции
+        wait-duration: # Продолжительность ожидания между попытками.
+          seconds: ${external.retry-backoff}
+        enable-exponential-backoff: true # Включаем экспоненциальное увеличения времени ожидания между попытками.
+        exponential-backoff-multiplier: 2 # Множитель экспоненциального увеличения времени ожидания.
+        enable-randomized-wait: true #  Включаем случайную задержку между попытками.
+        randomized-wait-factor: ${external.retry-jitter} # Это означает, что фактическое время ожидания будет варьироваться на retry-jitter% от исходного значения.
+        retry-exceptions: # Список исключений, при возникновении которых будут выполнены повторные попытки.
+          - ru.javaops.cloudjava.aggregateservice.exception.MenuAggregateException
+        ignore-exceptions:
+          - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+    instances:
+      menuBackend:
+        base-config: default
+      reviewBackend:
+        base-config: default

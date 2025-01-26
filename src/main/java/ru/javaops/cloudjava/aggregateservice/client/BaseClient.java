@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import ru.javaops.cloudjava.aggregateservice.config.props.ExternalServiceProps;
+import ru.javaops.cloudjava.aggregateservice.exception.MenuAggregate4xxException;
 import ru.javaops.cloudjava.aggregateservice.exception.MenuAggregateException;
 
 public abstract class BaseClient {
@@ -24,15 +25,12 @@ public abstract class BaseClient {
         if (t instanceof MenuAggregateException) {
             return t;
         }
-        HttpStatus status;
         // In JDK 21 "Pattern Matching for Switch" (https://openjdk.org/jeps/441) no preview feature anymore
         if (t instanceof WebClientResponseException.NotFound) {
-            status = HttpStatus.NOT_FOUND;
+            return new MenuAggregate4xxException(t.getMessage(), HttpStatus.NOT_FOUND);
         } else if (t instanceof WebClientResponseException.BadRequest) {
-            status = HttpStatus.BAD_REQUEST;
-        } else {
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            return new MenuAggregate4xxException(t.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new MenuAggregateException(t.getMessage(), status);
+        return new MenuAggregateException(t.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

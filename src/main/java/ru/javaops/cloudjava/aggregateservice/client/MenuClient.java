@@ -1,5 +1,7 @@
 package ru.javaops.cloudjava.aggregateservice.client;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -24,6 +26,7 @@ public class MenuClient extends BaseClient {
 
     private static final EnumSet<RatedMenuSort> SUPPORTED_SORTS = EnumSet.of(AZ, ZA, DATE_ASC, DATE_DESC, PRICE_ASC, PRICE_DESC);
 
+    private static final String MENU_BACKEND = "menuBackend";
     private final WebClient webClient;
 
     public MenuClient(WebClient.Builder clientBuilder,
@@ -34,6 +37,8 @@ public class MenuClient extends BaseClient {
                 .build();
     }
 
+    @CircuitBreaker(name = MENU_BACKEND)
+    @Retry(name = MENU_BACKEND)
     public Mono<MenuItem> getMenuItem(Long menuId) {
         var mono = webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -49,6 +54,8 @@ public class MenuClient extends BaseClient {
         return applyTimeoutAndHandleExceptions(mono);
     }
 
+    @CircuitBreaker(name = MENU_BACKEND)
+    @Retry(name = MENU_BACKEND)
     public Mono<List<MenuItem>> getMenusForCategory(Category category, RatedMenuSort sort) {
         var mono = webClient.get()
                 .uri(uriBuilder -> uriBuilder
