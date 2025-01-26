@@ -1,0 +1,103 @@
+package ru.javaops.cloudjava.aggregateservice.client;
+
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.test.StepVerifier;
+import ru.javaops.cloudjava.aggregateservice.BaseTest;
+import ru.javaops.cloudjava.aggregateservice.dto.aggregate.RatedMenuSort;
+import ru.javaops.cloudjava.aggregateservice.dto.menu.Category;
+import ru.javaops.cloudjava.aggregateservice.exception.MenuAggregateException;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static ru.javaops.cloudjava.aggregateservice.testutil.TestConstants.MENU_BACKEND;
+import static ru.javaops.cloudjava.aggregateservice.testutil.TestDateProvider.drinksMenuList;
+
+class MenuClientTest extends BaseTest {
+
+    @Autowired
+    private MenuClient client;
+
+    @Test
+    void getMenusForCategory_returnsCorrectResponse() {
+        stubForCorrectMenuListResponse();
+
+        var mono = client.getMenusForCategory(Category.DRINKS, RatedMenuSort.DATE_DESC);
+        StepVerifier.create(mono)
+                .expectNextMatches(response ->
+                        response.equals(drinksMenuList()))
+                .verifyComplete();
+        wiremock.verify(1, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+
+    @Test
+    void getMenusForCategory_returnsCorrectResponseAfterRetriesSucceed() {
+        stubForMenuItemListWithRetriesAndSuccess();
+
+        var mono = client.getMenusForCategory(Category.DRINKS, RatedMenuSort.DATE_DESC);
+        StepVerifier.create(mono)
+                .expectNextMatches(response ->
+                        response.equals(drinksMenuList()))
+                .verifyComplete();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+
+    @Test
+    void getMenusForCategory_returnsErrorOn500Error() {
+        stubForMenuItemList500Error();
+
+        var mono = client.getMenusForCategory(Category.DRINKS, RatedMenuSort.DATE_DESC);
+        StepVerifier.create(mono)
+                .expectError(MenuAggregateException.class)
+                .verify();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+
+    @Test
+    void getMenusForCategory_returnsErrorOnTimeout() {
+        stubForMenuItemListTimeout();
+
+        var mono = client.getMenusForCategory(Category.DRINKS, RatedMenuSort.DATE_DESC);
+        StepVerifier.create(mono)
+                .expectError(MenuAggregateException.class)
+                .verify();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+
+    @Test
+    void getMenusForCategory_returnsErrorAfterRetriesFailWithDifferentReasons() {
+        stubForMenuItemListWithRetriesAndFailure();
+
+        var mono = client.getMenusForCategory(Category.DRINKS, RatedMenuSort.DATE_DESC);
+        StepVerifier.create(mono)
+                .expectError(MenuAggregateException.class)
+                .verify();
+        wiremock.verify(3, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+
+    @Test
+    void getMenusForCategory_opensCircuitBreakerAfterAllAttempts() {
+        // circuitbreaker minimum-number-of-calls = 6 in tests
+        // retry max-attempts = 3
+        stubForMenuItemList500Error();
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker(MENU_BACKEND);
+        for (int i = 1; i <= 4; i++) {
+            var mono = client.getMenusForCategory(Category.DRINKS, RatedMenuSort.DATE_DESC);
+            Class<? extends Throwable> expectError;
+            if (i < 3) {
+                expectError = MenuAggregateException.class;
+                assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+            } else {
+                expectError = CallNotPermittedException.class;
+                assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
+            }
+            StepVerifier.create(mono)
+                    .expectError(expectError)
+                    .verify();
+        }
+        wiremock.verify(6, getRequestedFor(urlEqualTo(getMenuListUrl())));
+    }
+}
